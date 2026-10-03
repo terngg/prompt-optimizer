@@ -59,8 +59,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "test:unit": "vitest run tests/core.test.ts tests/providers.test.ts tests/skill.test.ts tests/install.test.mjs",
+    "test:unit": "vitest run tests/core.test.ts tests/providers.test.ts tests/skill.test.ts tests/install.test.mjs tests/edge-cases.test.ts",
     "test:integration": "vitest run tests/mcp.test.ts",
+    "test:tarball": "vitest run tests/tarball.test.ts",
     "smoke": "node scripts/smoke.mjs",
     "skill:validate": "node scripts/validate-skill.mjs",
     "examples": "node examples/demo.mjs",
@@ -68,7 +69,9 @@
     "mcp": "node dist/apps/mcp-server/src/cli.js",
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm skill:validate && pnpm smoke && pnpm docs:check",
     "prepack": "pnpm build && pnpm skill:validate",
-    "docs:check": "node scripts/check-links.mjs"
+    "docs:check": "node scripts/check-links.mjs",
+    "audit": "node scripts/audit.mjs",
+    "verify:pack": "node scripts/verify-pack.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/node": "2.1.1",
