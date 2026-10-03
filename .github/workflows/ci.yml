@@ -24,7 +24,8 @@ jobs:
       - run: pnpm run doctor
       - run: pnpm examples
       - run: pnpm pack
-      - run: pnpm audit
+      - run: pnpm verify:pack
+      - run: pnpm run audit
         if: matrix.os == 'ubuntu-latest' && matrix.node == 22
       - uses: actions/upload-artifact@v7.0.1
         if: matrix.os == 'ubuntu-latest' && matrix.node == 22

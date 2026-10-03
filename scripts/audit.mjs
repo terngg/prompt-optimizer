@@ -1,37 +1,42 @@
 import { execSync } from 'node:child_process';
 
 let stdout;
+let status = 0;
 try {
-  stdout = execSync('npm audit --omit=dev --json', {
+  stdout = execSync('pnpm audit --prod --json', {
     encoding: 'utf8',
-    stdio: ['pipe', 'pipe', 'ignore'],
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 60000,
   });
-} catch (err) {
-  stdout = err.stdout;
+} catch (error) {
+  stdout = error.stdout;
+  status = error.status ?? 1;
 }
 
-if (!stdout) {
-  console.error('Failed to run npm audit or empty output.');
-  process.exit(1);
+try {
+  const audit = JSON.parse(stdout);
+  const counts = audit.metadata?.vulnerabilities;
+  const levels = ['info', 'low', 'moderate', 'high', 'critical'];
+  if (
+    audit.error ||
+    !counts ||
+    levels.some(
+      (level) => !Number.isInteger(counts[level]) || counts[level] < 0,
+    )
+  )
+    throw new Error('Incomplete audit response');
+  console.log(
+    `Production audit: ${levels.map((level) => `${counts[level]} ${level}`).join(', ')}`,
+  );
+  if (status !== 0 || levels.some((level) => counts[level] > 0)) {
+    console.error(
+      'Production audit failed. Review pnpm audit --prod before releasing.',
+    );
+    process.exitCode = 1;
+  }
+} catch {
+  console.error(
+    'Production audit could not be completed. Check registry access and rerun pnpm run audit.',
+  );
+  process.exitCode = 1;
 }
-
-const audit = JSON.parse(stdout);
-const vulns = audit.metadata?.vulnerabilities || {
-  info: 0,
-  low: 0,
-  moderate: 0,
-  high: 0,
-  critical: 0,
-};
-const { info, low, moderate, high, critical } = vulns;
-
-console.log(
-  `Audit Summary: ${info} info, ${low} low, ${moderate} moderate, ${high} high, ${critical} critical`,
-);
-
-if (high > 0 || critical > 0) {
-  console.error('High/critical vulnerabilities found.');
-  process.exit(1);
-}
-
-process.exit(0);

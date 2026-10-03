@@ -1,6 +1,6 @@
 # Security policy
 
-v0.1.x is the currently maintained line. Report vulnerabilities privately using the repository's Security → Report a vulnerability feature after the maintainer enables private vulnerability reporting. This checkout has no assigned remote owner or private reporting address yet. Until that channel is configured, do not put exploit details, credentials or sensitive prompts into a public issue; contact the distributing maintainer privately. Configuring that channel is a publication prerequisite.
+v0.1.x is the currently maintained line. Report vulnerabilities privately through [GitHub private vulnerability reporting](https://github.com/terngg/prompt-optimizer/security/advisories/new). If that channel is unavailable, contact the maintainer at albinghx@gmail.com. Do not post exploit details, credentials or sensitive prompts in a public issue.
 
 Include the affected version, transport, a minimal sanitized reproduction, expected/observed behavior and impact. Never attach API keys, authorization headers, production context or private prompt logs. Maintainers should acknowledge reports promptly, coordinate remediation and publish an advisory with the fix.
 

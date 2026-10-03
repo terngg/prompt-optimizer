@@ -1,104 +1,243 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { mkdtemp, rm, writeFile, readdir } from 'node:fs/promises';
+import {
+  mkdtemp,
+  rm,
+  writeFile,
+  readFile,
+  rename,
+  mkdir,
+  copyFile,
+} from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { exec } from 'node:child_process';
+import { exec, execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
-import { Client } from '@modelcontextprotocol/client';
+import { once } from 'node:events';
+import {
+  Client,
+  StreamableHTTPClientTransport,
+} from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 
 const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
+const repository = resolve(import.meta.dirname, '..');
 
-describe('Production Tarball Installation', () => {
+describe('Production tarball installation', () => {
   let tempDir: string;
-  let tarballPath: string;
+  let packageRoot: string;
+  let cli: string;
 
   beforeAll(async () => {
-    // 1. Pack the project
-    const { stdout: packOut } = await execAsync('pnpm pack', {
-      cwd: resolve(__dirname, '..'),
-    });
-    const tarballName = packOut.trim().split('\n').pop()?.trim() || '';
-    tarballPath = resolve(__dirname, '..', tarballName);
-
-    // 2. Create a temporary directory
     tempDir = await mkdtemp(join(tmpdir(), 'promptopt-tarball-'));
-
-    // 3. Initialize minimal node project
-    await execAsync('npm init -y', { cwd: tempDir });
-
-    // 4. Install the tarball with production dependencies
-    await execAsync(`npm install "${tarballPath}"`, { cwd: tempDir });
-  }, 120000); // Generous timeout for pack/install (120s)
+    const artifact = process.env.PROMPTOPT_TEST_TARBALL;
+    if (artifact) {
+      await copyFile(resolve(artifact), join(tempDir, 'package.tgz'));
+    } else {
+      // Fixed shell commands; paths are passed through cwd/env or execFile arguments.
+      const { stdout } = await execAsync('npm pack --json', {
+        cwd: repository,
+        env: { ...process.env, npm_config_pack_destination: tempDir },
+        timeout: 60000,
+      });
+      // Lifecycle output precedes npm's final JSON array.
+      const pack = JSON.parse(stdout.slice(stdout.lastIndexOf('\n[') + 1));
+      await rename(
+        join(tempDir, pack[0].filename),
+        join(tempDir, 'package.tgz'),
+      );
+    }
+    await writeFile(
+      join(tempDir, 'package.json'),
+      JSON.stringify({ private: true, type: 'module' }),
+    );
+    await execAsync(
+      'npm install --ignore-scripts --omit=dev --no-audit --no-fund ./package.tgz',
+      {
+        cwd: tempDir,
+        timeout: 90000,
+      },
+    );
+    packageRoot = join(tempDir, 'node_modules', 'prompt-optimizer-mcp-engine');
+    cli = join(packageRoot, 'dist', 'apps', 'mcp-server', 'src', 'cli.js');
+  }, 180000);
 
   afterAll(async () => {
-    if (tempDir) {
-      await rm(tempDir, { recursive: true, force: true });
-    }
-    if (tarballPath) {
-      await rm(tarballPath, { force: true });
-    }
+    if (tempDir) await rm(tempDir, { recursive: true, force: true });
   });
 
-  it('SDK can be imported and PromptOptimizer can be instantiated', async () => {
-    const scriptPath = join(tempDir, 'test-sdk.mjs');
+  it('imports public SDK exports and optimizes offline with production dependencies only', async () => {
+    const script = join(tempDir, 'test-sdk.mjs');
     await writeFile(
-      scriptPath,
+      script,
       `
+import assert from 'node:assert/strict';
 import { PromptOptimizer } from 'prompt-optimizer-mcp-engine';
-const optimizer = new PromptOptimizer();
-if (!optimizer) throw new Error('Failed to instantiate PromptOptimizer');
+import { inspectPrompt } from 'prompt-optimizer-mcp-engine/core';
+import * as providers from 'prompt-optimizer-mcp-engine/providers';
+import { createServer } from 'prompt-optimizer-mcp-engine/server';
+const result = await new PromptOptimizer().optimize({ prompt: 'fix auth' });
+assert.ok(result.optimizedPrompt.startsWith('fix auth'));
+assert.equal(result.metadata.remoteUsed, false);
+assert.ok(inspectPrompt({ prompt: 'fix auth' }).intent);
+assert.ok(Object.keys(providers).length);
+assert.equal(typeof createServer, 'function');
 console.log('OK');
-      `.trim(),
+`,
     );
-
-    const { stdout } = await execAsync(`node "${scriptPath}"`, {
+    const { stdout } = await execFileAsync(process.execPath, [script], {
       cwd: tempDir,
     });
     expect(stdout.trim()).toBe('OK');
+    await expect(
+      readFile(join(tempDir, 'node_modules', 'vitest', 'package.json')),
+    ).rejects.toThrow();
   });
 
-  it('CLI binary exists and runs --version', async () => {
-    const { stdout } = await execAsync('npx promptopt --version', {
+  it('runs the installed binary without downloading a fallback', async () => {
+    const { stdout } = await execAsync(
+      'npm exec --offline -- promptopt --version',
+      { cwd: tempDir },
+    );
+    expect(stdout.trim()).toBe('0.1.0');
+  });
+
+  it('audits the freshly resolved production dependency tree', async () => {
+    const { stdout } = await execAsync('npm audit --omit=dev --json', {
       cwd: tempDir,
+      timeout: 60000,
     });
-    expect(stdout.trim()).toMatch(/^[0-9]+\.[0-9]+\.[0-9]+$/);
-  });
+    const audit = JSON.parse(stdout);
+    expect(audit.error).toBeUndefined();
+    expect(audit.metadata.vulnerabilities.total).toBe(0);
+  }, 65000);
 
-  it('Skill files are present in the package', async () => {
-    const skillsDir = join(
-      tempDir,
-      'node_modules',
-      'prompt-optimizer-mcp-engine',
-      'skills',
-      'prompt-optimizer',
-    );
-    const files = await readdir(skillsDir);
-    expect(files).toContain('SKILL.md');
-  });
-
-  it('A stdio MCP session can be started and returns tools', async () => {
-    const binPath = join(tempDir, 'node_modules', '.bin', 'promptopt');
-    const client = new Client(
-      { name: 'tarball-test', version: '0.1.0' },
-      { versionNegotiation: { mode: 'auto' } },
-    );
-
-    await client.connect(
-      new StdioClientTransport({
-        command: binPath,
-        args: [],
-        stderr: 'pipe',
-      }),
-    );
-
-    try {
-      const r = await client.listTools();
-      expect(r.tools.length).toBeGreaterThan(0);
-      const toolNames = r.tools.map((t: { name: string }) => t.name);
-      expect(toolNames).toContain('optimize_prompt');
-    } finally {
-      await client.close();
+  it('runs CLI inspect, optimize and eval against a file', async () => {
+    const input = join(tempDir, 'prompt.md');
+    await writeFile(input, 'fix auth');
+    for (const command of ['inspect', 'optimize', 'eval']) {
+      const { stdout } = await execFileAsync(process.execPath, [
+        cli,
+        command,
+        input,
+      ]);
+      const result = JSON.parse(stdout);
+      if (command === 'inspect')
+        expect(result.intent.primary).toBe('debugging');
+      if (command === 'optimize')
+        expect(result.optimizedPrompt).toContain('fix auth');
+      if (command === 'eval') expect(result.kind).toBe('heuristic diagnostics');
     }
   });
+
+  it('doctor validates the installed skill, configuration and HTTP initialization', async () => {
+    const { stdout } = await execFileAsync(process.execPath, [cli, 'doctor']);
+    expect(JSON.parse(stdout)).toMatchObject({
+      version: '0.1.0',
+      nodeSupported: true,
+      skillAvailable: true,
+      configurationValid: true,
+      httpInitialization: true,
+    });
+  });
+
+  it('installs the packaged skill and all linked references into a fresh project', async () => {
+    const project = join(tempDir, 'project');
+    await mkdir(project);
+    await execFileAsync(process.execPath, [
+      join(packageRoot, 'scripts', 'install-skill.mjs'),
+      '--agent',
+      'codex',
+      '--scope',
+      'project',
+      '--project',
+      project,
+    ]);
+    const installed = join(project, '.agents', 'skills', 'prompt-optimizer');
+    const text = await readFile(join(installed, 'SKILL.md'), 'utf8');
+    expect(text).toBe(
+      await readFile(
+        join(packageRoot, 'skills', 'prompt-optimizer', 'SKILL.md'),
+        'utf8',
+      ),
+    );
+    for (const [, link] of text.matchAll(/\]\((references\/[^)]+)\)/g)) {
+      expect(await readFile(join(installed, link!), 'utf8')).toBeTruthy();
+    }
+  });
+
+  for (const kind of ['stdio', 'http']) {
+    for (const mode of ['legacy', 'auto'] as const) {
+      it(`${kind} ${mode}: initializes, discovers, calls and validates the installed server`, async () => {
+        const child =
+          kind === 'http'
+            ? spawn(process.execPath, [cli, 'http', '--port', '0'], {
+                stdio: ['ignore', 'ignore', 'pipe'],
+              })
+            : undefined;
+        const exited = child ? once(child, 'exit') : undefined;
+        const client = new Client(
+          { name: 'tarball-test', version: '0.1.0' },
+          { versionNegotiation: { mode } },
+        );
+        try {
+          let url = '';
+          if (child) {
+            let timer: ReturnType<typeof setTimeout>;
+            try {
+              url = await new Promise<string>((resolveUrl, reject) => {
+                timer = setTimeout(
+                  () => reject(new Error('Packed HTTP server did not start')),
+                  10000,
+                );
+                let output = '';
+                child.stderr!.on('data', (chunk) => {
+                  output += chunk.toString();
+                  const match = output.match(/listening at (http:\/\/[^\s]+)/);
+                  if (match) resolveUrl(match[1]!);
+                });
+                child.once('error', reject);
+                child.once('exit', () =>
+                  reject(new Error('Packed HTTP server exited before startup')),
+                );
+              });
+            } finally {
+              clearTimeout(timer!);
+            }
+          }
+          await client.connect(
+            child
+              ? new StreamableHTTPClientTransport(new URL(url))
+              : new StdioClientTransport({
+                  command: process.execPath,
+                  args: [cli],
+                  stderr: 'pipe',
+                }),
+          );
+          expect((await client.listTools()).tools).toHaveLength(9);
+          expect((await client.listResources()).resources).toHaveLength(5);
+          expect((await client.listPrompts()).prompts).toHaveLength(5);
+          const result = await client.callTool({
+            name: 'optimize_prompt',
+            arguments: { prompt: 'fix auth' },
+          });
+          expect(result.isError).not.toBe(true);
+          expect(result.structuredContent).toMatchObject({
+            optimizedPrompt: expect.stringContaining('fix auth'),
+          });
+          const invalid = await client.callTool({
+            name: 'optimize_prompt',
+            arguments: { prompt: '' },
+          });
+          expect(invalid.isError).toBe(true);
+        } finally {
+          await client.close();
+          if (child) {
+            child.kill();
+            await exited;
+          }
+        }
+      });
+    }
+  }
 });

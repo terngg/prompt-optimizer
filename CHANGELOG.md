@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 — unreleased
+## 0.1.0 — 2026-10-03
 
 - Local-first instruction optimization with inspectable TaskIR, multiple intents, bounded domain passes and conservative adjacent-instruction deduplication.
 - Nine MCP tools, five resources and five prompts over stdio and loopback Streamable HTTP.

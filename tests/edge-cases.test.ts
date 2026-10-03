@@ -47,12 +47,14 @@ describe('Deduplication edge cases', () => {
   });
 
   it('skips dedup when disabled via disabledPasses', async () => {
-    const prompt = 'Fix it.\n\nFix it.';
+    const prompt = 'Run the relevant tests.\n\nRun the relevant tests.';
     const r = await engine.optimize({
       prompt,
       disabledPasses: ['instruction-deduplication'],
     });
-    expect(r.optimizedPrompt.match(/Fix it\./g)).toHaveLength(2);
+    expect(r.optimizedPrompt.match(/Run the relevant tests\./g)).toHaveLength(
+      2,
+    );
   });
 
   it('handles very long single-paragraph inputs (no dedup expected)', async () => {

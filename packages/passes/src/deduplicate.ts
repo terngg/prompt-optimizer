@@ -1,4 +1,4 @@
-/** Only repeated standalone prose instructions, never code, quotes, or creative repetition. */
+/** Remove only adjacent duplicate prose instructions; preserve ordered steps and code. */
 export function deduplicateInstructions(source: string): {
   text: string;
   removed: number;

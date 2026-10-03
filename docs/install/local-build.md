@@ -30,10 +30,10 @@ promptopt doctor
 
 Then use command `promptopt` with no arguments as a stdio server. On Windows, the generated absolute `node` configuration avoids `.cmd` launch differences.
 
-Registry name `prompt-optimizer-mcp-engine` returned 404 on 2026-10-03. This is an availability check, not a reservation. No release has been published. Only after publication will this work:
+For a published release, use the version-pinned package command (check [npm](https://www.npmjs.com/package/prompt-optimizer-mcp-engine) for availability):
 
 ```sh
 npx -y prompt-optimizer-mcp-engine@0.1.0
 ```
 
-A final GitHub owner has not been assigned. Until then, use the local skill installer rather than an invented `npx skills add OWNER/REPO` command.
+The source repository is [terngg/prompt-optimizer](https://github.com/terngg/prompt-optimizer). Use its documented local skill installer to copy the skill into your chosen host and scope.

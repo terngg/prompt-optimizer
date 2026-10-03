@@ -1,10 +1,10 @@
 # Release preparation
 
-This repository is prepared for v0.1.0. It has no assigned GitHub remote or npm owner and has not been published. Source, package structure and local checks can be completed without choosing an account; publication cannot.
+The v0.1.0 source repository is [terngg/prompt-optimizer](https://github.com/terngg/prompt-optimizer). The package is `prompt-optimizer-mcp-engine`. Inspect GitHub and npm before publishing to avoid duplicate releases or immutable npm versions.
 
 ## Final maintainer choices
 
-Choose the GitHub owner/repository and add the real `repository`, `homepage`, and `bugs` metadata to package.json. Set a private vulnerability reporting channel in SECURITY.md and a community contact in CODE_OF_CONDUCT.md. Enable private vulnerability reporting on GitHub. Recheck npm availability and account permission: a registry 404 is not a reservation or a guarantee that npm will accept a name. `prompt-optimizer-mcp-engine` was available by that check on 2026-10-03.
+The package metadata identifies the GitHub repository. SECURITY.md and CODE_OF_CONDUCT.md identify reporting channels. Verify private vulnerability reporting is enabled on GitHub. Recheck npm availability and account permission: a registry 404 is not a reservation or a guarantee that npm will accept a name. `prompt-optimizer-mcp-engine` was available by that check on 2026-10-03.
 
 The project uses semantic versioning. Keep package.json, shared VERSION, plugin.json, skill metadata, changelog and install examples synchronized. For 0.x, document breaking changes explicitly and bump the minor version.
 
@@ -15,16 +15,19 @@ pnpm install --frozen-lockfile
 pnpm check
 pnpm run doctor
 pnpm examples
-pnpm pack
-npm pack --dry-run
+npm pack
+pnpm verify:pack
+pnpm run audit
+# POSIX shell: use this exact archive for the final fresh-install checks.
+PROMPTOPT_TEST_TARBALL="$PWD/prompt-optimizer-mcp-engine-0.1.0.tgz" pnpm test:tarball
 npm view prompt-optimizer-mcp-engine name version
 ```
 
-The final command should report not found before first publication. Inspect the tarball file list for generated runtime files, declarations, skill references, license, metadata and absence of credentials. Install it in a fresh temporary project and exercise the SDK and stdio server; [verification evidence](verification.md) records the local test.
+The final command should report not found before first publication. Inspect the tarball file list for generated runtime files, declarations, skill references, license, metadata and absence of credentials. The artifact tests perform a fresh production install, exercise the SDK, CLI, doctor, skill installer and both transports, and audit the installed dependencies; [verification evidence](verification.md) records the local test. Repack and rerun these checks after changing publication metadata or reporting contacts. On PowerShell, set `$env:PROMPTOPT_TEST_TARBALL` to the archive's absolute path before running `pnpm test:tarball`.
 
 ## Publish to GitHub — authorized maintainer action
 
-The following commands publish remotely and were **not executed**. Run them only after choosing your account and reviewing the content:
+The following commands describe first publication. Inspect `git remote -v`, `git tag --list` and `gh release view v0.1.0` first; reuse an existing repository, correct tag or release instead of recreating it:
 
 ```sh
 git add .
@@ -45,7 +48,7 @@ npm login
 npm publish ./prompt-optimizer-mcp-engine-0.1.0.tgz --access public
 ```
 
-These commands were not executed. Use your account's required 2FA/trusted-publishing flow. After success, verify the registry version, update the unreleased status and enable the documented `npx -y prompt-optimizer-mcp-engine@0.1.0` install experience. Do not mark it published merely because packing succeeded.
+Use your account's required 2FA/trusted-publishing flow. Check `npm whoami` and package ownership before publishing. After success, verify `npm view prompt-optimizer-mcp-engine@0.1.0 version` and run `npx -y prompt-optimizer-mcp-engine@0.1.0 --version`. Do not mark it published merely because packing succeeded.
 
 ## Optional plugin distribution
 

@@ -4,7 +4,7 @@
 
 Prompt Optimizer adds an instruction-optimization layer to AI agents. Install it as an **MCP server + Agent Skill**. Your existing agent can turn a rough request into clearer, context-aware execution guidance, then do the work itself.
 
-Local-first. No API key required. No telemetry. Selective optimization, bounded additions, inspectable decisions. **v0.1.0 — prepared for release; not published.**
+Local-first. No API key required. No telemetry. Selective optimization, bounded additions, inspectable decisions. **v0.1.0.** See [GitHub releases](https://github.com/terngg/prompt-optimizer/releases) and the [npm registry](https://www.npmjs.com/package/prompt-optimizer-mcp-engine) for publication status.
 
 ```mermaid
 flowchart TD
@@ -106,4 +106,4 @@ pnpm pack
 
 [Architecture](docs/architecture.md) · [Tool API](docs/api.md) · [Verification](docs/verification.md) · [Troubleshooting](docs/troubleshooting.md) · [References/licenses](docs/references.md) · [Release instructions](docs/releasing.md) · [Contributing](CONTRIBUTING.md)
 
-MIT licensed. No package or GitHub repository is published by setup. The npm name was checked for availability; registry ownership and GitHub identity must be finalized before publication.
+MIT licensed. Maintained at [terngg/prompt-optimizer](https://github.com/terngg/prompt-optimizer). See [release instructions](docs/releasing.md) for verification and publication.

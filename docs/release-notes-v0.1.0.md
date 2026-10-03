@@ -8,4 +8,4 @@ Nine tools, five read-only resources and five optional prompts run over stdio an
 
 See the repository's verification report for executed checks. Host integration guides are documentation-based; no live vendor-host or paid-model certification is claimed. Scores and estimates are heuristic. MCP sampling is intentionally omitted following its deprecation. HTTP is local-only, and redaction does not guarantee removal of arbitrary secrets.
 
-This note is prepared for publication; no release has been published by the implementation process.
+Source: https://github.com/terngg/prompt-optimizer. Package: `prompt-optimizer-mcp-engine@0.1.0`.

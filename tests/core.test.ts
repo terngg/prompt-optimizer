@@ -433,10 +433,12 @@ it('does not turn an explanation into coding work', async () => {
   expect(ids(r)).not.toContain('repository-awareness');
 });
 
-it('preserves a repeated step when its position has meaning', async () => {
-  const prompt =
-    'Run the relevant tests.\n\nFix the auth bug.\n\nRun the relevant tests.';
-  const result = await engine.optimize({ prompt });
-  expect(result.changes.instructionsRemoved).toBe(0);
-  expect(result.optimizedPrompt.startsWith(prompt)).toBe(true);
-});
+it.each(['Fix the auth bug.', 'Run the database migration.'])(
+  'preserves a repeated step separated by %s',
+  async (step) => {
+    const prompt = `Run the relevant tests.\n\n${step}\n\nRun the relevant tests.`;
+    const result = await engine.optimize({ prompt });
+    expect(result.changes.instructionsRemoved).toBe(0);
+    expect(result.optimizedPrompt.startsWith(prompt)).toBe(true);
+  },
+);
