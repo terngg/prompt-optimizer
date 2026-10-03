@@ -1,0 +1,90 @@
+{
+  "name": "prompt-optimizer-mcp-engine",
+  "version": "0.1.0",
+  "description": "Give every AI agent better instructions. Local-first MCP server, portable Agent Skill, and optimization SDK.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@10.32.1",
+  "bin": {
+    "promptopt": "dist/apps/mcp-server/src/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/packages/sdk/src/index.d.ts",
+      "import": "./dist/packages/sdk/src/index.js"
+    },
+    "./core": {
+      "types": "./dist/packages/core/src/index.d.ts",
+      "import": "./dist/packages/core/src/index.js"
+    },
+    "./providers": {
+      "types": "./dist/packages/providers/src/index.d.ts",
+      "import": "./dist/packages/providers/src/index.js"
+    },
+    "./server": {
+      "types": "./dist/apps/mcp-server/src/server.d.ts",
+      "import": "./dist/apps/mcp-server/src/server.js"
+    }
+  },
+  "files": [
+    "dist",
+    "skills",
+    "integrations",
+    "docs",
+    "examples",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "scripts/install-skill.mjs",
+    "scripts/config.mjs",
+    "plugin.json",
+    "mcp.json",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md"
+  ],
+  "keywords": [
+    "mcp",
+    "agent-skills",
+    "prompt-optimization",
+    "codex",
+    "claude-code",
+    "antigravity"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/core.test.ts tests/providers.test.ts tests/skill.test.ts tests/install.test.mjs",
+    "test:integration": "vitest run tests/mcp.test.ts",
+    "smoke": "node scripts/smoke.mjs",
+    "skill:validate": "node scripts/validate-skill.mjs",
+    "examples": "node examples/demo.mjs",
+    "doctor": "node dist/apps/mcp-server/src/cli.js doctor",
+    "mcp": "node dist/apps/mcp-server/src/cli.js",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm skill:validate && pnpm smoke && pnpm docs:check",
+    "prepack": "pnpm build && pnpm skill:validate",
+    "docs:check": "node scripts/check-links.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/node": "2.1.1",
+    "@modelcontextprotocol/server": "2.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@modelcontextprotocol/client": "2.3.0",
+    "@types/node": "^22.20.5",
+    "ajv": "^8.20.0",
+    "eslint": "^10.12.0",
+    "prettier": "^3.9.9",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^5.0.3",
+    "yaml": "^2.9.1"
+  }
+}

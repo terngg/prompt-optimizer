@@ -1,0 +1,3 @@
+[mcp_servers.prompt-optimizer]
+command = "node"
+args = ["/absolute/path/to/prompt-optimizer/dist/apps/mcp-server/src/cli.js"]

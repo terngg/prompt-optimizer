@@ -1,0 +1,8 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "prompt-optimizer",
+  "version": "0.1.0",
+  "description": "Give every AI agent better instructions. Local-first optimization tools and a selective portable skill.",
+  "license": "MIT",
+  "keywords": ["mcp", "agent-skills", "prompt-optimization"]
+}
