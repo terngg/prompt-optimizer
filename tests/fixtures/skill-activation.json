@@ -1,0 +1,47 @@
+[
+  {
+    "case": "vague coding task",
+    "prompt": "Buat dashboard AI modern pakai Next.js.",
+    "decision": "optimize"
+  },
+  {
+    "case": "multi-feature UI task",
+    "prompt": "Buat dashboard admin untuk platform AI yang menampilkan penggunaan token, status model, biaya, dan riwayat request.",
+    "decision": "optimize"
+  },
+  {
+    "case": "repository-aware UI task from the Antigravity report",
+    "prompt": "Buat dashboard admin untuk platform AI yang menampilkan penggunaan token, status model, biaya, dan riwayat request. Gunakan Next.js dan sesuaikan dengan project yang sudah ada.",
+    "decision": "optimize"
+  },
+  {
+    "case": "project-wide UI modernization",
+    "prompt": "Rapikan semua UI/UX website ini dan buat lebih modern.",
+    "decision": "optimize"
+  },
+  {
+    "case": "complex debugging and architecture task",
+    "prompt": "Fix authentication ini dan rapikan arsitekturnya.",
+    "decision": "optimize"
+  },
+  {
+    "case": "trivial color change",
+    "prompt": "ubah warna tombol jadi merah",
+    "decision": "skip"
+  },
+  {
+    "case": "simple factual question",
+    "prompt": "apa arti dependency?",
+    "decision": "skip"
+  },
+  {
+    "case": "precise command",
+    "prompt": "jalankan npm run build",
+    "decision": "skip"
+  },
+  {
+    "case": "explicit optimization of an otherwise trivial task",
+    "prompt": "Optimize this prompt: ubah warna tombol jadi merah",
+    "decision": "optimize"
+  }
+]

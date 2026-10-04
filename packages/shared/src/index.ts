@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const VERSION = '0.1.0';
+export const VERSION = '0.1.1';
 export const LIMITS = {
   prompt: 64_000,
   contextItem: 32_000,

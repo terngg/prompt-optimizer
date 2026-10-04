@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.1 — 2026-10-04
+
+- Strengthen portable skill discovery for materially vague, multi-feature, repository-aware coding/UI, debugging, refactoring and research tasks before execution; preserve trivial-task skips and explicit invocation.
+- Treat the validated optimizer result as the execution contract, preventing independent specification expansion and recursive optimization.
+- Keep repository lookup bounded and optional analysis/evaluation tools selective.
+- Add a documented activation corpus, instruction-contract regressions, version consistency checks and the reported dashboard scope regression.
+- Document user-reported Antigravity CLI validation, including the successful v0.1.1 fresh-session complex-task replay, activation troubleshooting and copied-skill upgrades.
+- Refresh the README, repository branding, architecture diagram and installation navigation.
+
 ## 0.1.0 — 2026-10-03
 
 - Local-first instruction optimization with inspectable TaskIR, multiple intents, bounded domain passes and conservative adjacent-instruction deduplication.

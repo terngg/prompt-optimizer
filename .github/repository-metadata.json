@@ -1,18 +1,15 @@
 {
-  "description": "Give every AI agent better instructions. Local-first MCP server, portable Agent Skill, and TypeScript optimization engine.",
+  "description": "Give every AI coding agent better instructions before it starts working. Local-first MCP server and portable Agent Skill.",
   "topics": [
     "mcp",
     "model-context-protocol",
     "agent-skills",
     "ai-agents",
+    "developer-tools",
     "prompt-engineering",
     "prompt-optimization",
-    "codex",
-    "claude-code",
-    "antigravity",
-    "developer-tools",
     "typescript"
   ],
   "visibility": "public",
-  "version": "0.1.0"
+  "version": "0.1.1"
 }

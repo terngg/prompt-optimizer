@@ -91,7 +91,7 @@ export const resourceData = {
     name: 'prompt-optimizer',
     format: 'Agent Skills',
     activation:
-      'Selective; once per task unless requirements materially change or validation fails.',
+      'Before execution for materially complex or underspecified tasks; skip trivial work unless explicitly requested. Normally once per task; never recursively optimize output. Execute the validated result within its scope.',
     fallback: 'Lightweight host reasoning when MCP is unavailable.',
   },
   compatibility: {

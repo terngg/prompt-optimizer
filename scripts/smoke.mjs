@@ -6,13 +6,16 @@ import {
 } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { startHttp } from '../dist/apps/mcp-server/src/transports.js';
-import { OptimizeResultSchema } from '../dist/packages/shared/src/index.js';
+import {
+  OptimizeResultSchema,
+  VERSION,
+} from '../dist/packages/shared/src/index.js';
 const cli = resolve(process.argv[2] ?? 'dist/apps/mcp-server/src/cli.js');
 for (const kind of ['stdio', 'http'])
   for (const mode of ['legacy', 'auto']) {
     const http = kind === 'http' ? await startHttp({ port: 0 }) : undefined;
     const client = new Client(
-      { name: 'promptopt-smoke', version: '0.1.0' },
+      { name: 'promptopt-smoke', version: VERSION },
       { versionNegotiation: { mode } },
     );
     try {

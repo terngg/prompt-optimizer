@@ -1,81 +1,150 @@
-# Prompt Optimizer
+<p align="center">
+  <img src="./docs/assets/prompt-optimizer-preview.png" alt="Prompt Optimizer: your prompt becomes a clear execution contract for your existing AI agent" width="1280" />
+</p>
 
-**Give every AI agent better instructions.**
+<h1 align="center">Prompt Optimizer</h1>
 
-Prompt Optimizer adds an instruction-optimization layer to AI agents. Install it as an **MCP server + Agent Skill**. Your existing agent can turn a rough request into clearer, context-aware execution guidance, then do the work itself.
+<p align="center"><strong>Give every AI coding agent better instructions before it starts working.</strong></p>
 
-Local-first. No API key required. No telemetry. Selective optimization, bounded additions, inspectable decisions. **v0.1.0.** See [GitHub releases](https://github.com/terngg/prompt-optimizer/releases) and the [npm registry](https://www.npmjs.com/package/prompt-optimizer-mcp-engine) for publication status.
+<p align="center">
+  <a href="https://www.npmjs.com/package/prompt-optimizer-mcp-engine"><img src="https://img.shields.io/npm/v/prompt-optimizer-mcp-engine?color=36b99c" alt="npm version" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license" /></a>
+  <a href="package.json"><img src="https://img.shields.io/badge/Node.js-22%2B-43853d" alt="Node.js 22 or newer" /></a>
+  <a href="docs/verification.md"><img src="https://img.shields.io/badge/local_tests-221_passing-36b99c" alt="221 local tests passing" /></a>
+  <a href="docs/api.md"><img src="https://img.shields.io/badge/MCP-tools_%2B_skills-627eea" alt="MCP tools and portable Agent Skill" /></a>
+</p>
 
-```mermaid
-flowchart TD
-  You --> Host[Codex / Claude Code / Antigravity / Cursor / OpenCode]
-  Host --> Skill[Prompt Optimizer Skill: use only when helpful]
-  Skill --> MCP[Prompt Optimizer MCP]
-  MCP --> Task[Original intent + focused guidance]
-  Task --> Execute[Same host agent executes]
-```
+Install an **MCP server + portable Agent Skill**. Your existing agent gains the ability to turn vague, complex or context-heavy requests into focused instructions, then execute them. No API key required.
 
-## Try it locally
+[Quick start](#quick-start) · [Install guides](#install-guides) · [Examples](examples/before-after.md) · [API](docs/api.md) · [Troubleshooting](docs/troubleshooting.md)
 
-Node.js 22+ and pnpm 10.32.1:
+## Why Prompt Optimizer?
+
+Small gaps in a request can become large implementation assumptions. Prompt Optimizer helps the agent clarify relevant requirements, preserve constraints and verify its work without turning every task into a lengthy specification.
+
+- **Local-first and deterministic:** useful optimization without network access or an external model.
+- **Selective and proportional:** complex tasks get structure; trivial requests stay out of the optimizer.
+- **Repository-aware and scope-aware:** reuse project conventions, avoid unnecessary abstractions and preserve the requested features.
+- **Portable and inspectable:** MCP, an instruction-only Agent Skill and a TypeScript SDK share one engine. Context ranking, compression and pass explanations are built in.
+
+## How it works
+
+**Prompt Optimizer improves instructions. Your AI agent executes the work.**
+
+The skill decides whether optimization would help, reads only necessary repository context, calls `optimize_prompt`, then uses the validated result as an **execution contract**. The host implements and verifies that contract while respecting higher-priority instructions and explicit user requirements.
+
+## Supported AI agents
+
+| Host               | MCP | Agent Skill          | Evidence                                            |
+| ------------------ | --- | -------------------- | --------------------------------------------------- |
+| OpenAI Codex       | Yes | Yes                  | Integration supported; MCP protocol tested          |
+| Claude Code        | Yes | Yes                  | Integration supported; MCP protocol tested          |
+| Google Antigravity | Yes | Yes                  | CLI live tested, user-reported v0.1.x; IDE untested |
+| Cursor             | Yes | Yes                  | Integration supported; MCP protocol tested          |
+| OpenCode           | Yes | Yes                  | Integration supported; MCP protocol tested          |
+| Generic MCP hosts  | Yes | If supported by host | Protocol tested; portable skill available           |
+
+Protocol tests use the official MCP client; they do not substitute for live testing each host. Agent names identify integrations and imply no endorsement. See the [compatibility matrix and evidence](docs/compatibility.md).
+
+## Quick start
+
+With **Node.js 22+**, check the package and local server health:
 
 ```sh
-pnpm install --frozen-lockfile
-pnpm build
-pnpm run doctor
-pnpm smoke
+npx -y prompt-optimizer-mcp-engine@0.1.1 --version
+npx -y prompt-optimizer-mcp-engine@0.1.1 doctor
 ```
 
-Add the MCP server to your host. For Codex, from this checkout:
+### Install MCP
+
+Codex:
 
 ```sh
-codex mcp add prompt-optimizer -- node /root/prompt/dist/apps/mcp-server/src/cli.js
-node scripts/install-skill.mjs --agent codex --scope project --project /root/prompt
+codex mcp add prompt-optimizer -- npx -y prompt-optimizer-mcp-engine@0.1.1
 ```
 
-Use your checkout and target project paths. `node scripts/config.mjs codex` emits a configuration with the correct absolute paths for your machine. The skill installer never overwrites an existing skill.
+Claude Code, project scope:
 
-Then ask your agent: **“Use prompt-optimizer to improve this instruction, then execute it: fix auth.”** Automatic skill selection also works where the host supports it; trivial questions and precise instructions should pass through unchanged.
+```sh
+claude mcp add --transport stdio --scope project prompt-optimizer -- npx -y prompt-optimizer-mcp-engine@0.1.1
+```
 
-[Codex](docs/install/codex.md) · [Claude Code](docs/install/claude-code.md) · [Antigravity IDE/CLI](docs/install/antigravity.md) · [Cursor](docs/install/cursor.md) · [OpenCode](docs/install/opencode.md) · [Generic MCP / VS Code / Gemini](docs/install/generic-mcp.md) · [Generic Skill](docs/install/generic-skill.md)
+For Antigravity, Cursor, OpenCode and other clients, use the [host guides](#install-guides). Stdio and Streamable HTTP are supported.
 
-## What changes?
+### Install Agent Skill
 
-`fix auth` receives targeted guidance to inspect and reproduce the failure, make a small fix, add an appropriate regression check, and verify. It does not become a rewrite.
+The skill teaches the host **when** and **how** to optimize. Install the package globally to access its portable installer; from your target project, in a POSIX shell:
 
-`buat dashboard ai keren pake nextjs` retains the Indonesian request and gains relevant repository, responsive UI, accessibility, interaction-state and verification guidance. It does not acquire invented product features.
+```sh
+npm install --global prompt-optimizer-mcp-engine@0.1.1
+PROMPTOPT_ROOT="$(npm root -g)/prompt-optimizer-mcp-engine"
+node "$PROMPTOPT_ROOT/scripts/install-skill.mjs" --agent codex --scope project --project "$PWD"
+```
 
-`cari database terbaik buat saas gw` selects research criteria and source requirements, without instructing the agent to implement a database.
+Replace `codex` with `claude-code`, `antigravity`, `cursor`, `opencode` or `generic` as appropriate. Antigravity CLI global installs use `--agent antigravity-cli --scope user`. The installer refuses to overwrite an existing skill: review and refresh a previous copy when upgrading. **Updating npm alone does not update a copied skill.**
 
-`rapihin project ini dan fix semuanya` surfaces broad scope and recommends bounded work. `What is 2 + 2?` remains unchanged.
+Restart the host. For a quick discovery test, ask: **“Use Prompt Optimizer's inspect_prompt tool to analyze ‘fix auth’ without executing it.”** For explicit optimization: **“Use the prompt-optimizer skill to optimize this task, then execute it: …”**
 
-See [actual generated before/after examples](examples/before-after.md). Every result can explain applied/skipped passes, assumptions, redaction, conflicts, and estimated token impact.
+### Install guides
 
-## Capabilities
+[Codex](docs/install/codex.md) · [Claude Code](docs/install/claude-code.md) · [Google Antigravity](docs/install/antigravity.md) · [Cursor](docs/install/cursor.md) · [OpenCode](docs/install/opencode.md) · [Generic MCP / VS Code / Gemini](docs/install/generic-mcp.md) · [Local build](docs/install/local-build.md) · [Portable Agent Skill](docs/install/generic-skill.md)
+
+## Example: request → contract → execution
+
+**Before**, from the Antigravity CLI field test:
+
+```text
+Buat dashboard admin untuk platform AI yang menampilkan penggunaan token,
+status model, biaya, dan riwayat request.
+Gunakan Next.js dan sesuaikan dengan project yang sudah ada.
+```
+
+In the user's v0.1.1 fresh-session replay, the skill recognized this multi-feature, repository-aware task and invoked `optimize_prompt` before implementation.
+
+**Optimized guidance**, abbreviated and representative rather than a verbatim trace:
+
+> Build the requested Next.js admin dashboard within the existing project. Cover token usage, model status, costs and request history. Reuse existing components and conventions. Keep changes focused; include responsive behavior, accessibility and relevant interaction states. Run the appropriate checks and report the result.
+
+**Execution:** the same host agent implements that scope. It should not invent a prompt studio, model registry, webhook system or other major features. Necessary repository-specific details may be added to carry out the task.
+
+## Selective optimization
+
+| Request                                             | Expected skill decision                |
+| --------------------------------------------------- | -------------------------------------- |
+| “Buat dashboard AI modern pakai Next.js.”           | Optimize before implementation         |
+| “Fix authentication ini dan rapikan arsitekturnya.” | Optimize and surface scope/constraints |
+| “Ubah warna tombol utama jadi merah.”               | Skip; make the direct edit             |
+| “Apa arti dependency?” / “jalankan npm run build”   | Skip; answer or execute directly       |
+| “Optimize this prompt…”                             | Optimize explicitly                    |
+
+A successful result stays the execution contract, not a starting point for a broader specification. Normally use **one primary optimization pass**; do not recursively optimize its output or run all nine tools on every task. Automatic discovery remains host-controlled. [Activation troubleshooting](docs/troubleshooting.md#mcp-visible-but-optimizer-does-not-auto-trigger).
+
+## Tools
 
 | MCP tool                       | Purpose                                                       |
 | ------------------------------ | ------------------------------------------------------------- |
-| `optimize_prompt`              | Preserve the task and add proportional execution guidance     |
+| `optimize_prompt`              | Improve a request with proportional execution guidance        |
 | `inspect_prompt`               | Analyze intent, gaps, conflicts and context without rewriting |
-| `adapt_prompt`                 | Add documented host conventions                               |
-| `evaluate_prompt`              | Transparent heuristic diagnostics                             |
-| `compare_prompts`              | Dimensional comparison without an arbitrary winner            |
-| `compress_context`             | Rank, deduplicate, extract relevant lines and budget context  |
-| `build_agent_instruction`      | Assemble explicit task information                            |
-| `explain_optimization`         | Explain caller-supplied pass records, without server history  |
-| `suggest_optimization_profile` | Choose a proportional local profile                           |
+| `adapt_prompt`                 | Apply documented target-agent conventions                     |
+| `evaluate_prompt`              | Return clearly labeled heuristic quality diagnostics          |
+| `compare_prompts`              | Compare strengths and weaknesses by dimension                 |
+| `compress_context`             | Rank, deduplicate and budget relevant context                 |
+| `build_agent_instruction`      | Assemble explicit task information into instructions          |
+| `explain_optimization`         | Explain supplied optimization records                         |
+| `suggest_optimization_profile` | Recommend a proportional local profile                        |
 
-Read-only resources: `promptopt://profiles`, `passes`, `skills`, `compatibility`, `version` (each uses the same URI prefix). Optional templates: `optimize-coding-task`, `optimize-debugging-task`, `optimize-research-task`, `optimize-ui-task`, `optimize-agent-task`.
+Also available: five read-only resources and five optional task templates. [Full API](docs/api.md).
 
-Stdio and Streamable HTTP share the same engine. A portable instruction-only skill teaches activation, tool choice, priority, recursion protection and fallback. The skill is useful even without MCP; MCP tools remain useful without skills.
+## Architecture
 
-## SDK and optional AI
+![Selective optimization flow and the shared engine](docs/assets/architecture.svg)
+
+The independent TypeScript core powers the MCP server and SDK. The portable skill contains workflow guidance, not a duplicate optimization engine. Tools work without skills; skills offer a lightweight fallback without MCP.
 
 ```ts
 import { PromptOptimizer } from 'prompt-optimizer-mcp-engine';
 
-const optimizer = new PromptOptimizer();
-const result = await optimizer.optimize({
+const result = await new PromptOptimizer().optimize({
   prompt: 'buat dashboard ai keren pake nextjs',
   targetAgent: 'codex',
   profile: 'balanced',
@@ -84,26 +153,34 @@ const result = await optimizer.optimize({
 console.log(result.optimizedPrompt);
 ```
 
-Use the package import after [installing the local tarball](docs/install/local-build.md) or after publication. In this checkout use `dist/packages/sdk/src/index.js`; run `pnpm examples` for working examples.
+[Architecture](docs/architecture.md) · [Optional OpenAI-compatible, Anthropic and Gemini providers](docs/providers.md)
 
-Profiles (`minimal`, `balanced`, `thorough`) control additions. Modes (`local`, `fast`, `balanced`, `high`, `max`) control optional model calls. Remote modes require trusted server configuration **and** explicit selection. OpenAI-compatible, Anthropic and Gemini adapters support an optional separate evaluator. [Provider setup and privacy](docs/providers.md).
+## Security and privacy
 
-MCP sampling is deprecated in the current protocol, so this release uses optional provider APIs and deterministic fallback. [Compatibility and official sources](docs/compatibility.md).
+Local mode makes no remote model requests and needs no API key. No telemetry is collected. Remote AI requires explicit configuration and mode selection. Context is untrusted data; optimizer advice cannot override higher-priority instructions or host approvals.
 
-## Trust and limits
+Secret redaction is defense-in-depth, not a guarantee. Classification, conflict checks, token estimates and quality diagnostics are heuristic. They do not prove semantic fidelity or safe execution. [Security model](docs/security.md) · [Report a vulnerability](SECURITY.md)
 
-The original task stays authoritative. Added advice cannot override explicit user or higher-priority instructions. Context stays untrusted data. Critical context survives compression; impossible budgets produce diagnostics instead of silent truncation. Repeated optimization is guarded by host task state and result hashes.
-
-Classification, conflict detection, scores and token estimates are heuristic, with English/Indonesian coverage. They do not prove semantic fidelity or better execution. Secret redaction is best-effort. Live vendor hosts and paid provider models have not been tested; protocol clients and local provider fixtures have. See [security](docs/security.md) and [compatibility](docs/compatibility.md).
-
-## Develop and release
+## Development
 
 ```sh
+pnpm install --frozen-lockfile
+pnpm build
 pnpm check
 pnpm examples
-pnpm pack
+pnpm run doctor
 ```
 
-[Architecture](docs/architecture.md) · [Tool API](docs/api.md) · [Verification](docs/verification.md) · [Troubleshooting](docs/troubleshooting.md) · [References/licenses](docs/references.md) · [Release instructions](docs/releasing.md) · [Contributing](CONTRIBUTING.md)
+[Verification](docs/verification.md) · [Release process](docs/releasing.md) · [Reference projects and licenses](docs/references.md)
 
-MIT licensed. Maintained at [terngg/prompt-optimizer](https://github.com/terngg/prompt-optimizer). See [release instructions](docs/releasing.md) for verification and publication.
+## Roadmap
+
+Broaden live host coverage, benchmark multilingual intent preservation and improve context provenance. New capabilities must preserve selective activation and bounded scope.
+
+## Contributing
+
+Bug reports, reproducible host traces and focused contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [code of conduct](CODE_OF_CONDUCT.md).
+
+## License
+
+[MIT](LICENSE). Built for the open agent ecosystem.

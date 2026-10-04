@@ -22,6 +22,9 @@ import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 const execAsync = promisify(exec);
 const execFileAsync = promisify(execFile);
 const repository = resolve(import.meta.dirname, '..');
+const packageVersion: string = JSON.parse(
+  await readFile(join(repository, 'package.json'), 'utf8'),
+).version;
 
 describe('Production tarball installation', () => {
   let tempDir: string;
@@ -99,7 +102,7 @@ console.log('OK');
       'npm exec --offline -- promptopt --version',
       { cwd: tempDir },
     );
-    expect(stdout.trim()).toBe('0.1.0');
+    expect(stdout.trim()).toBe(packageVersion);
   });
 
   it('audits the freshly resolved production dependency tree', async () => {
@@ -133,7 +136,7 @@ console.log('OK');
   it('doctor validates the installed skill, configuration and HTTP initialization', async () => {
     const { stdout } = await execFileAsync(process.execPath, [cli, 'doctor']);
     expect(JSON.parse(stdout)).toMatchObject({
-      version: '0.1.0',
+      version: packageVersion,
       nodeSupported: true,
       skillAvailable: true,
       configurationValid: true,
@@ -177,7 +180,7 @@ console.log('OK');
             : undefined;
         const exited = child ? once(child, 'exit') : undefined;
         const client = new Client(
-          { name: 'tarball-test', version: '0.1.0' },
+          { name: 'tarball-test', version: packageVersion },
           { versionNegotiation: { mode } },
         );
         try {

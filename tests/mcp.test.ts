@@ -9,7 +9,7 @@ import { request } from 'node:http';
 import { once } from 'node:events';
 import { resolve } from 'node:path';
 import { startHttp } from '../apps/mcp-server/src/transports.js';
-import { OptimizeResultSchema } from '../packages/shared/src/index.js';
+import { OptimizeResultSchema, VERSION } from '../packages/shared/src/index.js';
 const cli = resolve('dist/apps/mcp-server/src/cli.js');
 for (const transportKind of ['stdio', 'http'] as const)
   for (const mode of ['legacy', 'auto'] as const) {
@@ -18,7 +18,7 @@ for (const transportKind of ['stdio', 'http'] as const)
       let http: Awaited<ReturnType<typeof startHttp>> | undefined;
       beforeAll(async () => {
         client = new Client(
-          { name: 'promptopt-tests', version: '0.1.0' },
+          { name: 'promptopt-tests', version: VERSION },
           { versionNegotiation: { mode } },
         );
         if (transportKind === 'http') {

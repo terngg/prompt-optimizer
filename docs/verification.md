@@ -1,10 +1,10 @@
-# Verification report
+# Verification report — v0.1.1
 
-Local verification date: 2026-10-03. Environment: Linux x64, Node 22.23.3, pnpm 10.32.1. These local checks involved no paid model calls, live vendor-host execution or telemetry.
+Local verification dates: 2026-10-03 and 2026-10-04 (final continuation). Environment: Linux x64, Node 22.23.3, pnpm 10.32.1. These local checks involved no paid model calls, live vendor-host execution or telemetry.
 
 ## Executed checks
 
-Formatting, lint, typecheck, build, all 202 tests, skill validation, transport smoke, doctor, example calls and local-link checks passed. A fresh production-only tarball install passed SDK, binary, CLI, doctor, skill-copy, stdio and HTTP checks. Production dependency audits reported zero known vulnerabilities for both the pnpm lockfile and the freshly installed npm dependency tree. These are registry advisory checks, not security certification.
+Formatting, lint, typecheck, build, all 221 tests, skill validation, transport smoke, doctor, example calls and local-link checks passed. A fresh production-only tarball install passed SDK, binary, CLI, doctor, skill-copy, stdio and HTTP checks. Production dependency audits reported zero known vulnerabilities for both the pnpm lockfile and the freshly installed npm dependency tree. These are registry advisory checks, not security certification.
 
 The release verification runs the following commands from the repository root:
 
@@ -17,16 +17,18 @@ npm pack
 pnpm verify:pack
 pnpm run audit
 # POSIX shell: verify this exact artifact in another fresh production install.
-PROMPTOPT_TEST_TARBALL="$PWD/prompt-optimizer-mcp-engine-0.1.0.tgz" pnpm test:tarball
+PROMPTOPT_TEST_TARBALL="$PWD/prompt-optimizer-mcp-engine-0.1.1.tgz" pnpm test:tarball
 ```
 
 `pnpm check` covers formatting, ESLint, strict TypeScript, build, Vitest, skill validation, MCP smoke and local Markdown links. The test suite covers all supported intent categories, selective passes, source preservation, code preservation, restrictions, explicit conflicts, impossible budgets, recursion metadata, large/duplicate/malicious context, redaction, provider boundaries, timeouts, bounded orchestration and skill copying.
 
-The 202 tests comprise 161 unit/edge/skill tests, 31 MCP integration tests and 10 production artifact tests. `pnpm test:unit`, `pnpm test:integration` and `pnpm test:tarball` select these groups. Adjacent duplicates are removed; repeated instructions separated by either ordinary prose or another recognized instruction remain in order. The disabled-dedup regression uses an instruction that would otherwise be eligible for removal.
+The 221 tests comprise 180 unit/edge/skill tests, 31 MCP integration tests and 10 production artifact tests. `pnpm test:unit`, `pnpm test:integration` and `pnpm test:tarball` select these groups. Adjacent duplicates are removed; repeated instructions separated by either ordinary prose or another recognized instruction remain in order. The disabled-dedup regression uses an instruction that would otherwise be eligible for removal.
 
 MCP tests run the official client against stdio and loopback HTTP in both legacy and modern modes. They verify initialization/discovery, nine tools with strict input/output schemas, five resources (including reads), five prompts (including rendering), all tool calls, structured output and invalid input. Additional tests exercise stdio EOF, oversized frames, HTTP Host/Origin/path/body checks. `pnpm smoke` repeats the essential discovery/call checks against compiled JavaScript.
 
 Provider tests use local HTTP fixtures and deterministic DNS mocking. They check all three request/response formats, credential placement, source redaction, redirect rejection, response limits, private-address rejection, deadline handling and deterministic fallback. These are adapter tests, not real model quality results.
+
+Nineteen new skill regressions cover nine documented activation/skip cases, discovery-time categories, explicit-use precedence, pre-execution ordering, the execution contract, scope limits, recursion, selective tool choice, fallback limits, version consistency and the reported dashboard request. The corpus checks documented decisions and semantic instruction clauses; it is not a host-model simulation or evidence of improved live activation. The engine regression confirms that the reported unrequested features are absent from the actual local optimization output.
 
 The skill passed the included Node validator and the Codex skill-authoring `quick_validate.py` validator. Skill copy tests exercise each supported agent's project and user path using temporary directories, plus overwrite refusal and symlink rejection. The optional plugin and MCP manifests were validated against the fetched official Agent Plugins 1.0.0 JSON Schemas using Ajv 8.20.0.
 
@@ -36,8 +38,8 @@ Final review found that the old audit wrapper treated npm's missing-lockfile err
 
 ## Evidence boundaries
 
-- No actual Codex, Claude Code, Antigravity, Cursor, OpenCode, VS Code or Gemini host was launched. Installation instructions come from official documentation.
-- CI is configured for Linux, Windows and macOS on Node 22/24, but remote CI has not run until the repository is published.
+- No vendor host was launched by the automated verification suite. Separately, the user reported successful Antigravity CLI v0.1.x integration and a v0.1.1 fresh-session replay confirming complex-task automatic activation and execution-contract scope control. See the compatibility report; this is field evidence, not an activation-rate benchmark.
+- CI is configured for Linux, Windows and macOS on Node 22/24. v0.1.0 remote jobs could not start because of a GitHub account billing lock. Local results do not imply that the remote matrix passed; inspect the repository Actions runs for current status.
 - No paid provider/account/model was called. No measured execution-quality gain is claimed.
 - These checks do not establish publication. Check [GitHub releases](https://github.com/terngg/prompt-optimizer/releases) and the [npm registry](https://www.npmjs.com/package/prompt-optimizer-mcp-engine) separately. No plugin marketplace listing is claimed.
 - `doctor` verifies local startup, not host-specific trust, permissions or automatic skill selection.

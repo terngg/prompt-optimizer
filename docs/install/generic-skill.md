@@ -18,4 +18,4 @@ The installer is cross-platform, refuses overwrite, and rejects symlink parents.
 
 Restart/refresh the host and ask: “Use the prompt-optimizer skill to improve this task before executing it.” Automatic activation depends on host skill selection, not a universal interception mechanism. The skill calls the MCP engine when available and uses a short reasoning fallback otherwise. It never requires a remote provider. The fallback has no deterministic schema, token accounting, or classification guarantees.
 
-The repository has no assigned GitHub owner yet, so it deliberately does not advertise a fictional remote skill install command. The local installer works before publication.
+The source repository is `terngg/prompt-optimizer`. The installer is included in the npm package as well as the source checkout. Refresh any previously copied skill directory after reviewing the changes; updating the MCP package alone does not update that copy.

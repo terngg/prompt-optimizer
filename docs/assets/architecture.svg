@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="810" viewBox="0 0 1200 810" role="img" aria-labelledby="title desc"><title id="title">How Prompt Optimizer works</title><desc id="desc">The skill selectively calls the MCP optimizer before execution. Intent, context and constraints become an execution contract. The original host executes and verifies. Trivial requests bypass optimization.</desc><rect width="1200" height="810" rx="20" fill="#0b1523"/><g font-family="Inter, Arial, sans-serif">
+<text x="48" y="64" font-size="32" fill="#eef5fa" font-weight="650" >Better instructions. Same agent.</text>
+<text x="48" y="100" font-size="18" fill="#a8becb" font-weight="400" >Optimization guides execution; your host keeps its tools and permissions.</text>
+<rect x="48" y="132" width="744" height="76" rx="16" fill="#122333" stroke="#294151"/>
+<text x="70" y="164" font-size="14" fill="#8bdfcb" font-weight="600" >01</text>
+<text x="118" y="162" font-size="21" fill="#eef5fa" font-weight="600" >User request</text>
+<text x="118" y="189" font-size="16" fill="#afc2ce" font-weight="400" >The original intent stays authoritative.</text>
+<path d="M420 212v14m-5-5 5 5 5-5" stroke="#77bcae" fill="none" stroke-width="2"/>
+<rect x="48" y="230" width="744" height="76" rx="16" fill="#122333" stroke="#294151"/>
+<text x="70" y="262" font-size="14" fill="#8bdfcb" font-weight="600" >02</text>
+<text x="118" y="260" font-size="21" fill="#eef5fa" font-weight="600" >Agent Skill decides</text>
+<text x="118" y="287" font-size="16" fill="#afc2ce" font-weight="400" >Optimize only when the task would benefit.</text>
+<path d="M420 310v14m-5-5 5 5 5-5" stroke="#77bcae" fill="none" stroke-width="2"/>
+<rect x="48" y="328" width="744" height="76" rx="16" fill="#122333" stroke="#294151"/>
+<text x="70" y="360" font-size="14" fill="#8bdfcb" font-weight="600" >03</text>
+<text x="118" y="358" font-size="21" fill="#eef5fa" font-weight="600" >Prompt Optimizer MCP</text>
+<text x="118" y="385" font-size="16" fill="#afc2ce" font-weight="400" >One primary optimize_prompt call.</text>
+<path d="M420 408v14m-5-5 5 5 5-5" stroke="#77bcae" fill="none" stroke-width="2"/>
+<rect x="48" y="426" width="744" height="76" rx="16" fill="#122333" stroke="#294151"/>
+<text x="70" y="458" font-size="14" fill="#8bdfcb" font-weight="600" >04</text>
+<text x="118" y="456" font-size="21" fill="#eef5fa" font-weight="600" >Intent · context · constraints</text>
+<text x="118" y="483" font-size="16" fill="#afc2ce" font-weight="400" >Shared local engine selects proportional passes.</text>
+<path d="M420 506v14m-5-5 5 5 5-5" stroke="#77bcae" fill="none" stroke-width="2"/>
+<rect x="48" y="524" width="744" height="76" rx="16" fill="#123038" stroke="#63cbb6"/>
+<text x="70" y="556" font-size="14" fill="#8bdfcb" font-weight="600" >05</text>
+<text x="118" y="554" font-size="21" fill="#eef5fa" font-weight="600" >Execution contract</text>
+<text x="118" y="581" font-size="16" fill="#afc2ce" font-weight="400" >Preserve scope. Resolve material conflicts.</text>
+<path d="M420 604v14m-5-5 5 5 5-5" stroke="#77bcae" fill="none" stroke-width="2"/>
+<rect x="48" y="622" width="744" height="76" rx="16" fill="#122333" stroke="#294151"/>
+<text x="70" y="654" font-size="14" fill="#8bdfcb" font-weight="600" >06</text>
+<text x="118" y="652" font-size="21" fill="#eef5fa" font-weight="600" >Original host agent</text>
+<text x="118" y="679" font-size="16" fill="#afc2ce" font-weight="400" >Implement the smallest solution, then verify.</text>
+<path d="M794 268H848V660H798m7-5-5 5 5 5" stroke="#7b9bae" fill="none" stroke-width="2" stroke-dasharray="5 5"/>
+<rect x="871" y="286" width="281" height="100" rx="16" fill="#13242e" stroke="#31505b"/>
+<text x="891" y="316" font-size="18" fill="#eef5fa" font-weight="600" >Simple, precise task?</text>
+<text x="891" y="346" font-size="17" fill="#bed0db" font-weight="400" >Skip optimization.</text>
+<text x="891" y="370" font-size="17" fill="#bed0db" font-weight="400" >Execute directly.</text>
+<rect x="871" y="435" width="281" height="130" rx="16" fill="#13242e" stroke="#31505b"/>
+<text x="891" y="465" font-size="18" fill="#eef5fa" font-weight="600" >Shared engine</text>
+<text x="891" y="495" font-size="16" fill="#bed0db" font-weight="400" >MCP + TypeScript SDK</text>
+<text x="891" y="523" font-size="16" fill="#bed0db" font-weight="400" >Deterministic by default.</text>
+<text x="891" y="548" font-size="16" fill="#bed0db" font-weight="400" >External AI is optional.</text>
+<text x="48" y="768" font-size="17" fill="#9bb5c5" font-weight="400" >Higher-priority instructions, explicit user requirements and host approvals always apply.</text>
+</g></svg>
